@@ -168,4 +168,18 @@
   $\epsilon=0.5*10^{-2}$ and $Nmax=100$, produces $x_c = 0.34961$ with $f(x_c) =
   0.001940 \ ( < 0.5*10^{-2} )$ running 9 iterations.
 
+\section*{Task 4}
+
+  \textbf{Task:} Use a algorithm based on the fixed point method to appriximate
+  $k$ to 6 decimal accuracy. \\
+
+  \begin{align*}
+     f(x) &= 7 + 0.5x - (10 + 0.5x)\mathrm{e}^{-x} = 0\\
+     0  &= 7 + 0.5x - (10 + 0.5x)\mathrm{e}^{-x} \\
+     - 0.5x  &= 7 - (10 + 0.5x)\mathrm{e}^{-x} \\
+     x  &= -2(10 + 0.5x)\mathrm{e}^{-x} + 14  = g(x)\\
+  \end{align*}
+
+  $ g(x) = -2(10 + 0.5x)\mathrm{e}^{-x} + 14 $
+
 \end{document}

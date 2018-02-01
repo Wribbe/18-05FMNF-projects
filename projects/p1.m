@@ -19,6 +19,9 @@ fplot('t3_check', xs, ys, '', 'f(x)', 10, 3);
 fxa = f(xa);
 fprintf('Bisection method produces: f(%.5f) = %f in %d iterations.\n', xa, fxa, iters);
 
+% Test the fixed point method for cos.
+[xa, iters] = fixed_point(@cos, 0, 0.5*10^-4, 100)
+
 ys;
 function y = f(x)
 y = 7 + 0.5 * x - (10 + 0.5 * x ) * exp(-x);
@@ -48,6 +51,22 @@ function [xc, iters] = bisection(f, a, b, eps, Nmax)
   end
   % Calculate and return approximate root.
   xc = (a+b)/2;
+end
+
+% Construct fixed point algorithm.
+
+function [xc, iters] = fixed_point(g, guess, eps, Nmax)
+  iters = 1;
+  xc = guess;
+  while iters <= Nmax
+    % Generate next guess based on current guess.
+    nxc = g(xc);
+    % Break if new guess similar enough to previous guess.
+    if abs(nxc - xc) < eps; break; end
+    iters = iters + 1;
+    % Use current nxc value as next xc value.
+    xc = nxc;
+  end
 end
 
 function fplot(name, xs, ys, x_label, y_label, width, height)
