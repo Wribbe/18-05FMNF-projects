@@ -5,17 +5,17 @@
 %% Task 3
 
 % Evaluate f(x) between -2 and 2 to get a feeling about the values.
-xs = -2:0.1:2;
+xs = 0:0.1:1;
 ys = zeros(size(xs));
 
 for i = 1:numel(xs)
   ys(i) = f(xs(i));
 end
 
-fplot('t3_check', xs, ys, '', 'f(x)', 8, 3);
+fplot('t3_check', xs, ys, '', 'f(x)', 10, 3);
 
 % Test the bisection method.
-[xa, iters] = bisection(@f, -2, 2, 0.5*10^(-2), 100);
+[xa, iters] = bisection(@f, 0, 1, 0.5*10^(-2), 100);
 fxa = f(xa);
 fprintf('Bisection method produces: f(%.5f) = %f in %d iterations.\n', xa, fxa, iters);
 

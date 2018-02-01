@@ -147,15 +147,25 @@
 
 \section*{Task 3}
 
+  \textbf{Task:}
   Construct a MATLAB algorithm that approximates the value of $k$ with an
   accuaracy of two decimal places using the bisection method. \\
 
   \noindent
-  In other words, find the roots to the following function: \\
-  $ f(x) = 7 + 0.5x - (10 + 0.5x)\mathrm{e}^{-x} $\\
+  The task is equivalent to finding a root to the function:
+  $ f(x) = 7 + 0.5x - (10 + 0.5x)\mathrm{e}^{-x} $.
+  In order to use the bisection method, an intitial x-interval of $[a, b]$ must
+  be choosen in such a way that $f(a) * f(b) < 0$, i.e. the interval brackets the
+  root. Two such values are 0 and 1, which results in; $f(0) = -3$ and $f(1) >
+  0$, which gives the initial values of $a=0$ and $b=1$.
 
   \begin{center}
     \includegraphics{figs/t3_check.pdf}
   \end{center}
+
+  \noindent
+  Running the $x_c =\ $\texttt{bisection} in MATLAB, with $a=0$, $b=1$,
+  $\epsilon=0.5*10^{-2}$ and $Nmax=100$, produces $x_c = 0.34961$ with $f(x_c) =
+  0.001940 \ ( < 0.5*10^{-2} )$ running 9 iterations.
 
 \end{document}
