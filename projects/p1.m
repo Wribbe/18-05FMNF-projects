@@ -4,6 +4,7 @@
 
 %% Task 3
 
+% Evaluate f(x) between -2 and 2 to get a feeling about the values.
 xs = -2:0.1:2;
 ys = zeros(size(xs));
 
@@ -11,14 +12,21 @@ for i = 1:numel(xs)
   ys(i) = f(xs(i));
 end
 
-f(-2)
-f(2)
-
 fplot('t3_check', xs, ys, '', 'f(x)', 4, 3);
+
+% Test the bisection method.
+bisection('', '', '', '', 10);
 
 ys;
 function y = f(x)
 y = 7 + 0.5 * x - (10 + 0.5 * x ) * exp(-x);
+end
+
+function y = bisection(f, a, b, eps, Nmax)
+  while Nmax > 0
+    Nmax
+    Nmax = Nmax - 1;
+  end
 end
 
 function fplot(name, xs, ys, x_label, y_label, width, height)
