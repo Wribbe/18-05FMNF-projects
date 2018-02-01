@@ -20,7 +20,8 @@ fxa = f(xa);
 fprintf('Bisection method produces: f(%.5f) = %f in %d iterations.\n', xa, fxa, iters);
 
 % Test the fixed point method for cos.
-[xa, iters] = fixed_point(@cos, 0, 0.5*10^-4, 100)
+[xa, iters] = fixed_point(@cos, 0, 0.5*10^-9, 100)
+fprintf('xa: %.16f\n', xa);
 
 ys;
 function y = f(x)
@@ -62,6 +63,7 @@ function [xc, iters] = fixed_point(g, guess, eps, Nmax)
     % Generate next guess based on current guess.
     nxc = g(xc);
     % Break if new guess similar enough to previous guess.
+    fprintf('%f %f %.16f\n', xc, nxc, abs(nxc - xc));
     if abs(nxc - xc) < eps; break; end
     iters = iters + 1;
     % Use current nxc value as next xc value.
