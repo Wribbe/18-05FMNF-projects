@@ -12,28 +12,49 @@ for i = 1:numel(xs)
   ys(i) = f(xs(i));
 end
 
-fplot('t3_check', xs, ys, '', 'f(x)', 4, 3);
+fplot('t3_check', xs, ys, '', 'f(x)', 8, 3);
 
 % Test the bisection method.
-bisection('', '', '', '', 10);
+[xa, iters] = bisection(@f, -2, 2, 0.5*10^(-2), 100);
+fxa = f(xa);
+fprintf('Bisection method produces: f(%.5f) = %f in %d iterations.\n', xa, fxa, iters);
 
 ys;
 function y = f(x)
 y = 7 + 0.5 * x - (10 + 0.5 * x ) * exp(-x);
 end
 
-function y = bisection(f, a, b, eps, Nmax)
-  while Nmax > 0
-    Nmax
-    Nmax = Nmax - 1;
+% error = | xa - r | < (b-a)/2^(n+1)
+% Correct to p decimal places -> error < 0.5 * 10^(-p)
+
+function [xc, iters] = bisection(f, a, b, eps, Nmax)
+  % Calculate function values based on inverval.
+  fa = f(a); fb = f(b);
+  iters = 1;
+  while iters <= Nmax
+    % Break if eps is satisfied.
+    if (b-a) < eps; break; end
+    % Caculate new mid and function value.
+    mid = (a+b)/2; fmid = f(mid);
+    % Break if fmid is a root.
+    if fmid == 0; break; end
+    % Not root, construct new interval.
+    if fa * fmid < 0 % [a, mid] includes root.
+      b = mid;
+    else % [mid, b] includes root.
+      a = mid; fa = fmid;
+    end
+    iters = iters + 1;
   end
+  % Calculate and return approximate root.
+  xc = (a+b)/2;
 end
 
 function fplot(name, xs, ys, x_label, y_label, width, height)
   fig = figure('visible','off');
   plot(xs, ys);
   set(gcf,'Units','centimeters');
-  screenposition = get(gcf,'Position')
+  screenposition = get(gcf,'Position');
   set(gcf,...
       'PaperPosition',[0 0 width height],...
       'PaperSize', [width height]);
