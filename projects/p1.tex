@@ -164,22 +164,42 @@
   \end{center}
 
   \noindent
-  Running the $x_c =\ $\texttt{bisection} in MATLAB, with $a=0$, $b=1$,
-  $\epsilon=0.5*10^{-2}$ and $Nmax=100$, produces $x_c = 0.34961$ with $f(x_c) =
+  Running the $k_c =\ $\texttt{bisection} in MATLAB, with $a=0$, $b=1$,
+  $\epsilon=0.5*10^{-2}$ and $Nmax=100$, produces $k_c = 0.34961$ with $f(k_c) =
   0.001940 \ ( < 0.5*10^{-2} )$ running 9 iterations.
 
 \section*{Task 4}
 
   \textbf{Task:} Use a algorithm based on the fixed point method to appriximate
-  $k$ to 6 decimal accuracy. \\
-
+  $k$ to 6 decimal accuracy.
   \begin{align*}
      f(x) &= 7 + 0.5x - (10 + 0.5x)\mathrm{e}^{-x} = 0\\
      0  &= 7 + 0.5x - (10 + 0.5x)\mathrm{e}^{-x} \\
      - 0.5x  &= 7 - (10 + 0.5x)\mathrm{e}^{-x} \\
-     x  &= -2(10 + 0.5x)\mathrm{e}^{-x} + 14  = g(x)\\
+     x  &= -2(10 + 0.5x)\mathrm{e}^{-x} + 14  = g(x)
   \end{align*}
 
-  $ g(x) = -2(10 + 0.5x)\mathrm{e}^{-x} + 14 $
+  \noindent
+  $ g(x) = -2(10 + 0.5x)\mathrm{e}^{-x} + 14 $ \\
+  $ g(x) = -20\mathrm{e}^{-x} - x\mathrm{e}^{-x} + 14 $ \\
+  $ g'(x) = \mathrm{e}^{-x}(19 + x)$ \\
+
+  \noindent
+  Plugging in $k_c$ from the previous computation results in:  $|g'(k_c)| = |14.35|
+  > 1 $, which indicates that the fixed-point iteration will not converge.
+  Rewriting $g(x)$ in the the following way:
+
+  \noindent
+  \begin{align*}
+    0  &= 7 + 0.5x - (10 + 0.5x)\mathrm{e}^{-x} \\
+    -7 -0.5x  &= -(10 + 0.5x)\mathrm{e}^{-x} \\
+    \mathrm{e}^{x}(-7 -0.5x)  &= -10 + 0.5x \\
+    \mathrm{e}^{x}  &= \frac{-10 + 0.5x}{-7-0.5x} \\
+    g(x) &= \mathrm{ln}(\frac{-10 + 0.5x}{-7-0.5x})
+  \end{align*}
+  \noindent
+  gives $|g'(k_c)| = |0.0429| < 1 $, which makes the fixed-point algorithm converge to
+  $ k_c = 0.349345 $ in 3 iterations, with the result $f(k_c) = 8.1904*10^{-7}$.
+
 
 \end{document}

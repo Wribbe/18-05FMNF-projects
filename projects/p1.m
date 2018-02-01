@@ -17,15 +17,39 @@ fplot('t3_check', xs, ys, '', 'f(x)', 10, 3);
 % Test the bisection method.
 [xa, iters] = bisection(@f, 0, 1, 0.5*10^(-2), 100);
 fxa = f(xa);
+fprintf('Task3 -- Bisection\n');
+fprintf('---\n');
 fprintf('Bisection method produces: f(%.5f) = %f in %d iterations.\n', xa, fxa, iters);
 
 % Test the fixed point method for cos.
-[xa, iters] = fixed_point(@cos, 0, 0.5*10^-9, 100)
-fprintf('xa: %.16f\n', xa);
+%[xa, iters] = fixed_point(@cos, 0, 0.5*10^-9, 100)
+k = xa;
+
+% Run fixed-point for g(x), with xa from prev as guess.
+fprintf('\n');
+fprintf('Task4 -- Fixed point.\n');
+fprintf('---\n');
+[xa, iters] = fixed_point(@g2, xa, 0.5*10^-6, 100);
+fprintf('fixed-point produces xa: %.6f in %d iterations.\n', xa, iters);
+
+k = xa;
+f(k)
+
+%k
+exp(-k)*(20+k)
+fprintf('Value of g2''(x): %.6f\n', 6/(k^2 + 34*k + 128));
 
 ys;
 function y = f(x)
-y = 7 + 0.5 * x - (10 + 0.5 * x ) * exp(-x);
+  y = 7 + 0.5 * x - (10 + 0.5 * x ) * exp(-x);
+end
+
+function y = g(x)
+  y = -2*(10 + 0.5*x)*exp(-x)+14;
+end
+
+function y = g2(x)
+  y = log((-10 - 0.5*x)/(-7-0.5*x));
 end
 
 % error = | xa - r | < (b-a)/2^(n+1)
@@ -62,9 +86,11 @@ function [xc, iters] = fixed_point(g, guess, eps, Nmax)
   while iters <= Nmax
     % Generate next guess based on current guess.
     nxc = g(xc);
-    % Break if new guess similar enough to previous guess.
     fprintf('%f %f %.16f\n', xc, nxc, abs(nxc - xc));
-    if abs(nxc - xc) < eps; break; end
+    % Calculate difference between previous and current guess.
+    diff = abs(nxc - xc);
+    % Break if new guess similar enough to previous guess.
+    if diff < eps; break; end
     iters = iters + 1;
     % Use current nxc value as next xc value.
     xc = nxc;
