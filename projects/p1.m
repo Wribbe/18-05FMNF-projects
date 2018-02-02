@@ -15,7 +15,7 @@ end
 fplot('t3_check', xs, ys, '', 'f(x)', 10, 3);
 
 % Test the bisection method.
-[xa, iters] = bisection(@f, 0, 1, 0.5*10^(-3), 100);
+[xa, iters, errors] = bisection(@f, 0, 1, 0.5*10^(-3), 100);
 fxa = f(xa);
 fprintf('Task3 -- Bisection\n');
 fprintf('---\n');
@@ -41,7 +41,7 @@ fprintf('\n');
 fprintf('Task5 -- Newton-Raphson.\n');
 fprintf('---\n');
 eps_newton = 0.5*10^-17;
-[xa, iters] = newtonraphs(@ft, @ftp, kc, -1.25, eps_newton, 500);
+[xa, iters, errors] = newtonraphs(@ft, @ftp, kc, -1.25, eps_newton, 500);
 fprintf('Newton-Raphson produces xa: %.16f in %d iterations.\n', xa, iters);
 fprintf('with value f(%.6f): %.16f.\n', xa, ft(xa, kc));
 
@@ -63,15 +63,26 @@ fprintf('\n');
 fprintf('Task6 -- Compute tc with bisection and fixed-point.\n');
 fprintf('---\n');
 
+% Tabulate iterations, error values and error difference for Newton.
+tabulate_errors(errors);
+
+
 ftssolve =@(x) ft(x, kc);
-[xa, iters] = bisection(ftssolve, -1.5, 0, eps_newton, 2600);
+[xa, iters, errors] = bisection(ftssolve, -1.5, 0, eps_newton, 2600);
 fprintf('Bisection method computed xa = %.16f in %d iterations.\n', xa, iters);
 fprintf('Bisection error: %.16f.\n', ft(xa, kc));
+tabulate_errors(errors);
+
+% Tabulate iterations, error values and error difference for Bisection.
+
 
 fixed_g3 =@(x) g3(x, kc);
-[xa, iters] = fixed_point(fixed_g3, -1.2, eps_newton/10, 5000);
+[xa, iters, errors] = fixed_point(fixed_g3, -1.2, eps_newton/10, 5000);
 fprintf('Fixed-point method computed xa = %.16f in %d iterations.\n', xa, iters);
 fprintf('Fixed-point error: %.16f.\n', ft(xa, kc));
+tabulate_errors(errors);
+
+% Tabulate iterations, error values and error difference for Fixed-point.
 
 %g3d(-1.2, kc)
 
@@ -95,7 +106,7 @@ fprintf('fzero solution for tc with our kc, \t\ttc = %.16f.\n', tc);
 ftssolve =@(x) ft(x, fkc);
 tc = fzero(ftssolve, -1.1);
 fprintf('fzero solution for tc with fsolve kc, \t\ttc = %.16f.\n', tc);
-fprintf('Fixed-point error: %.16f.\n', ft(t, fkc));
+fprintf('Fixed-point error: %.16f.\n', ft(tc, fkc));
 fprintf('T(t) Result for tc = %.16f.\n', ft(tc, kc));
 
 function y = f(x)
@@ -129,13 +140,17 @@ end
 % error = | xa - r | < (b-a)/2^(n+1)
 % Correct to p decimal places -> error < 0.5 * 10^(-p)
 
-function [xc, iters] = bisection(f, a, b, eps, Nmax)
+function [xc, iters, errors] = bisection(f, a, b, eps, Nmax)
   % Calculate function values based on inverval.
   fa = f(a); fb = f(b);
   iters = 1;
+  errors = [];
   while iters <= Nmax
+    % Claculate error and append to errors array.
+    err = (b-a)/2;
+    errors(end+1) = err;
     % Break if eps is satisfied.
-    if (b-a)/2 < eps; break; end
+    if err < eps; break; end
     % Caculate new mid and function value.
     mid = (a+b)/2; fmid = f(mid);
     % Break if fmid is a root.
@@ -154,33 +169,51 @@ end
 
 % Construct fixed point algorithm.
 
-function [xc, iters] = fixed_point(g, guess, eps, Nmax)
+function [xc, iters, errors] = fixed_point(g, guess, eps, Nmax)
   iters = 1;
   xc = guess;
+  errors = [];
   while iters <= Nmax
     % Generate next guess based on current guess.
     nxc = g(xc);
     % Calculate difference between previous and current guess.
-%    diff = abs(((nxc - xc)*(nxc + xc))/(nxc + xc));
-    diff = abs(xc - nxc);
+    err = abs(xc - nxc);
+    % Append error to errors array.
+    errors(end+1) = err;
     % Use current nxc value as next xc value.
-    fprintf('%.19f %.19f %.19f %.25f\n', xc, nxc, diff, eps);
     xc = nxc;
     % Break if new guess similar enough to previous guess.
-    if diff < eps; break; end
+    if err < eps; break; end
     iters = iters + 1;
   end
 end
 
-function [xc, iters] = newtonraphs(f, fp, k, guess, eps, Nmax)
+function [xc, iters, errors] = newtonraphs(f, fp, k, guess, eps, Nmax)
   iters = 1;
   xc = guess;
+  errors = [];
   while iters <= Nmax
     nxc = xc - (f(xc, k)/fp(xc, k));
     err = f(nxc, k);
+    errors(end+1) = err;
     iters = iters + 1;
     xc = nxc;
     if abs(err) < eps; break; end
+  end
+end
+
+
+function tabulate_errors(errors)
+  fprintf('i \t e_i\t\t\te_i/e_{i-1}\n');
+  p_e = 0;
+  for i=1:numel(errors)
+    fprintf('%d \t %.16f \t', i-1, errors(i));
+    if i > 1
+      fprintf('%.16f', errors(i)/errors(i-1));
+    else
+      fprintf(' ');
+    end
+    fprintf('\n');
   end
 end
 
