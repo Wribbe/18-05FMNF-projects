@@ -65,7 +65,7 @@ fprintf('---\n');
 
 
 ftssolve =@(x) ft(x, kc);
-[xa, iters] = bisection(ftssolve, -1.5, -1, eps_newton, 2600);
+[xa, iters] = bisection(ftssolve, -1.5, 0, eps_newton, 2600);
 fprintf('Bisection method computed xa = %.16f in %d iterations.\n', xa, iters);
 fprintf('Bisection error: %.16f.\n', ftssolve(xa));
 
