@@ -15,7 +15,7 @@ end
 fplot('t3_check', xs, ys, '', 'f(x)', 10, 3);
 
 % Test the bisection method.
-[xa, iters] = bisection(@f, 0, 1, 0.5*10^(-2), 100);
+[xa, iters] = bisection(@f, 0, 1, 0.5*10^(-3), 100);
 fxa = f(xa);
 fprintf('Task3 -- Bisection\n');
 fprintf('---\n');
@@ -40,17 +40,10 @@ kc = xa;
 fprintf('\n');
 fprintf('Task5 -- Newton-Raphson.\n');
 fprintf('---\n');
-[xa, iters] = newtonraphs(@ft, @ftp, kc, -1.25, 0.5*10^-16, 100);
+eps_newton = 0.5*10^-17;
+[xa, iters] = newtonraphs(@ft, @ftp, kc, -1.25, eps_newton, 100);
 fprintf('Newton-Raphson produces xa: %.16f in %d iterations.\n', xa, iters);
 fprintf('with value f(%.6f): %.16f.\n', xa, ft(xa, kc));
-
-fprintf('\n');
-fprintf('Task7 -- Comapare to fzero results.\n');
-fprintf('---\n');
-
-fprintf('fzero solution for kc = %.16f.\n', fzero(@f, 1));
-ftssolve =@(x) ft(x, kc);
-fprintf('fzero solution for tc = %.16f.\n', fzero(ftssolve, 1));
 
 xs = -10:0.1:10;
 ys = zeros(size(xs));
@@ -65,6 +58,24 @@ for i = 1:numel(xs)
   ys(i) = ft(xs(i), kc);
 end
 fplot('t5_check_2', xs, ys, '', 'f(t)', 10, 3);
+
+fprintf('\n');
+fprintf('Task6 -- Compute tc with bisection and N-Raphson.\n');
+fprintf('---\n');
+
+
+ftssolve =@(x) ft(x, kc);
+[xa, iters] = bisection(ftssolve, -1.5, -1, eps_newton, 2600);
+fprintf('Bisection method computed xa = %.16f in %d iterations.\n', xa, iters);
+fprintf('Bisection error: %.16f.\n', ftssolve(xa));
+
+
+fprintf('\n');
+fprintf('Task7 -- Comapare to fzero results.\n');
+fprintf('---\n');
+
+fprintf('fzero solution for kc = %.16f.\n', fzero(@f, 1));
+fprintf('fzero solution for tc = %.16f.\n', fzero(ftssolve, 1));
 
 function y = f(x)
   y = 7 + 0.5 * x - (10 + 0.5 * x ) * exp(-x);
@@ -95,7 +106,7 @@ function [xc, iters] = bisection(f, a, b, eps, Nmax)
   iters = 1;
   while iters <= Nmax
     % Break if eps is satisfied.
-    if (b-a) < eps; break; end
+    if (b-a)/2 < eps; break; end
     % Caculate new mid and function value.
     mid = (a+b)/2; fmid = f(mid);
     % Break if fmid is a root.
@@ -136,9 +147,9 @@ function [xc, iters] = newtonraphs(f, fp, k, guess, eps, Nmax)
   while iters <= Nmax
     nxc = xc - (f(xc, k)/fp(xc, k));
     err = f(nxc, k);
-    if err < eps; break; end
     iters = iters + 1;
     xc = nxc;
+    if abs(err) < eps; break; end
   end
 end
 
