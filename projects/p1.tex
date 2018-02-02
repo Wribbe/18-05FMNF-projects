@@ -170,7 +170,8 @@
 
 \section*{Task 4}
 
-  \textbf{Task:} Use a algorithm based on the fixed point method to appriximate
+  \textbf{Task:}
+  Use a algorithm based on the fixed point method to appriximate
   $k$ to 6 decimal accuracy.
   \begin{align*}
      f(x) &= 7 + 0.5x - (10 + 0.5x)\mathrm{e}^{-x} = 0\\
@@ -200,6 +201,34 @@
   \noindent
   gives $|g'(k_c)| = |0.0429| < 1 $, which makes the fixed-point algorithm converge to
   $ k_c = 0.349345 $ in 3 iterations, with the result $f(k_c) = 8.1904*10^{-7}$.
+
+\section*{Task 5}
+
+  \textbf{Task:}
+  Use the appriximated value for $k$, $k_c$ and the Newton-Raphson method to
+  calculate $T(t) = 37$ in order to determine the time of death. \\
+
+  \noindent
+  The body-temparture equation according to earlier with $k = k_c$:
+  \begin{align*}
+    T(t) &= 22 + 0.5t - 0.5k_c + (10 + 0.5k_c)\mathrm{e}^{-k_ct} \\
+    37 &= 22 + 0.5t - 0.5k_c + (10 + 0.5k_c)\mathrm{e}^{-k_ct} \\
+    f(t) &= -15 + 0.5t - 0.5k_c + (10 + 0.5k_c)\mathrm{e}^{-k_ct} \\
+    f'(t) &=  0.5 -k_c(10 + 0.5k_c)\mathrm{e}^{-k_ct}
+  \end{align*}
+
+  \noindent
+  Plotting the function $f(t)$ for different x-intervals results in the
+  follwing graphs:
+
+  \begin{center}
+    \includegraphics{figs/t5_check.pdf}
+  \end{center}
+
+  \begin{center}
+    \includegraphics{figs/t5_check_2.pdf}
+  \end{center}
+
 
 
 \end{document}

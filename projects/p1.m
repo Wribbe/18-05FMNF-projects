@@ -31,15 +31,41 @@ fprintf('Task4 -- Fixed point.\n');
 fprintf('---\n');
 [xa, iters] = fixed_point(@g2, xa, 0.5*10^-6, 100);
 fprintf('fixed-point produces xa: %.6f in %d iterations.\n', xa, iters);
+fprintf('with value f(%.6f): %.16f.\n', xa, f(xa));
+kc = xa;
 
-k = xa;
-f(k)
+%exp(-k)*(20+k);
+%fprintf('Value of g2''(x): %.6f\n', 6/(k^2 + 34*k + 128));
 
-%k
-exp(-k)*(20+k)
-fprintf('Value of g2''(x): %.6f\n', 6/(k^2 + 34*k + 128));
+fprintf('\n');
+fprintf('Task5 -- Newton-Raphson.\n');
+fprintf('---\n');
+[xa, iters] = newtonraphs(@ft, @ftp, kc, -1.25, 0.5*10^-16, 100);
+fprintf('Newton-Raphson produces xa: %.16f in %d iterations.\n', xa, iters);
+fprintf('with value f(%.6f): %.16f.\n', xa, ft(xa, kc));
 
-ys;
+fprintf('\n');
+fprintf('Task7 -- Comapare to fzero results.\n');
+fprintf('---\n');
+
+fprintf('fzero solution for kc = %.16f.\n', fzero(@f, 1));
+ftssolve =@(x) ft(x, kc);
+fprintf('fzero solution for tc = %.16f.\n', fzero(ftssolve, 1));
+
+xs = -10:0.1:10;
+ys = zeros(size(xs));
+for i = 1:numel(xs)
+  ys(i) = ft(xs(i), kc);
+end
+fplot('t5_check', xs, ys, '', 'f(t)', 10, 3);
+
+xs = -2:0.1:0;
+ys = zeros(size(xs));
+for i = 1:numel(xs)
+  ys(i) = ft(xs(i), kc);
+end
+fplot('t5_check_2', xs, ys, '', 'f(t)', 10, 3);
+
 function y = f(x)
   y = 7 + 0.5 * x - (10 + 0.5 * x ) * exp(-x);
 end
@@ -50,6 +76,14 @@ end
 
 function y = g2(x)
   y = log((-10 - 0.5*x)/(-7-0.5*x));
+end
+
+function y = ft(t, k)
+  y = -15 + 0.5*t - 0.5*k + (10 + 0.5*k)*exp(-k*t);
+end
+
+function y = ftp(t, k)
+  y = 0.5 - k*(10 + 0.5*k)*exp(-k*t);
 end
 
 % error = | xa - r | < (b-a)/2^(n+1)
@@ -86,7 +120,6 @@ function [xc, iters] = fixed_point(g, guess, eps, Nmax)
   while iters <= Nmax
     % Generate next guess based on current guess.
     nxc = g(xc);
-    fprintf('%f %f %.16f\n', xc, nxc, abs(nxc - xc));
     % Calculate difference between previous and current guess.
     diff = abs(nxc - xc);
     % Break if new guess similar enough to previous guess.
@@ -96,6 +129,19 @@ function [xc, iters] = fixed_point(g, guess, eps, Nmax)
     xc = nxc;
   end
 end
+
+function [xc, iters] = newtonraphs(f, fp, k, guess, eps, Nmax)
+  iters = 1;
+  xc = guess;
+  while iters <= Nmax
+    nxc = xc - (f(xc, k)/fp(xc, k));
+    err = f(nxc, k);
+    if err < eps; break; end
+    iters = iters + 1;
+    xc = nxc;
+  end
+end
+
 
 function fplot(name, xs, ys, x_label, y_label, width, height)
   fig = figure('visible','off');
