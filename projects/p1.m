@@ -60,7 +60,7 @@ end
 fplot('t5_check_2', xs, ys, '', 'f(t)', 10, 3);
 
 fprintf('\n');
-fprintf('Task6 -- Compute tc with bisection and N-Raphson.\n');
+fprintf('Task6 -- Compute tc with bisection and fixed-point.\n');
 fprintf('---\n');
 
 
