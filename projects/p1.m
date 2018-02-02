@@ -41,7 +41,7 @@ fprintf('\n');
 fprintf('Task5 -- Newton-Raphson.\n');
 fprintf('---\n');
 eps_newton = 0.5*10^-17;
-[xa, iters] = newtonraphs(@ft, @ftp, kc, -1.25, eps_newton, 100);
+[xa, iters] = newtonraphs(@ft, @ftp, kc, -1.25, eps_newton, 500);
 fprintf('Newton-Raphson produces xa: %.16f in %d iterations.\n', xa, iters);
 fprintf('with value f(%.6f): %.16f.\n', xa, ft(xa, kc));
 
@@ -63,19 +63,40 @@ fprintf('\n');
 fprintf('Task6 -- Compute tc with bisection and fixed-point.\n');
 fprintf('---\n');
 
-
 ftssolve =@(x) ft(x, kc);
 [xa, iters] = bisection(ftssolve, -1.5, 0, eps_newton, 2600);
 fprintf('Bisection method computed xa = %.16f in %d iterations.\n', xa, iters);
-fprintf('Bisection error: %.16f.\n', ftssolve(xa));
+fprintf('Bisection error: %.16f.\n', ft(xa, kc));
+
+fixed_g3 =@(x) g3(x, kc);
+[xa, iters] = fixed_point(fixed_g3, -1.2, eps_newton/10, 5000);
+fprintf('Fixed-point method computed xa = %.16f in %d iterations.\n', xa, iters);
+fprintf('Fixed-point error: %.16f.\n', ft(xa, kc));
+
+%g3d(-1.2, kc)
+
+%xs = -2:0.1:0;
+%ys = zeros(size(xs));
+%for i = 1:numel(xs)
+%  ys(i) = g3(xs(i), kc);
+%end
+%fplot('t6_check_1', xs, ys, '', 'f(t)', 10, 3);
 
 
 fprintf('\n');
 fprintf('Task7 -- Comapare to fzero results.\n');
 fprintf('---\n');
 
-fprintf('fzero solution for kc = %.16f.\n', fzero(@f, 1));
-fprintf('fzero solution for tc = %.16f.\n', fzero(ftssolve, 1));
+fkc = fzero(@f, 1);
+fprintf('fzero solution for \tkc = %.16f.\n', fkc);
+fprintf('our solution for \tkc = %.16f.\n', kc);
+tc = fzero(ftssolve, 1);
+fprintf('fzero solution for tc with our kc, \t\ttc = %.16f.\n', tc);
+ftssolve =@(x) ft(x, fkc);
+tc = fzero(ftssolve, -1.1);
+fprintf('fzero solution for tc with fsolve kc, \t\ttc = %.16f.\n', tc);
+fprintf('Fixed-point error: %.16f.\n', ft(t, fkc));
+fprintf('T(t) Result for tc = %.16f.\n', ft(tc, kc));
 
 function y = f(x)
   y = 7 + 0.5 * x - (10 + 0.5 * x ) * exp(-x);
@@ -95,6 +116,14 @@ end
 
 function y = ftp(t, k)
   y = 0.5 - k*(10 + 0.5*k)*exp(-k*t);
+end
+
+function y = g3(t, k)
+  y = log((15-0.5*t+0.5*k)/(10+0.5*k)) * (1/-k);
+end
+
+function y = g3d(t, k)
+  y = -1/(k*(k-t+30));
 end
 
 % error = | xa - r | < (b-a)/2^(n+1)
@@ -132,12 +161,14 @@ function [xc, iters] = fixed_point(g, guess, eps, Nmax)
     % Generate next guess based on current guess.
     nxc = g(xc);
     % Calculate difference between previous and current guess.
-    diff = abs(nxc - xc);
+%    diff = abs(((nxc - xc)*(nxc + xc))/(nxc + xc));
+    diff = abs(xc - nxc);
+    % Use current nxc value as next xc value.
+    fprintf('%.19f %.19f %.19f %.25f\n', xc, nxc, diff, eps);
+    xc = nxc;
     % Break if new guess similar enough to previous guess.
     if diff < eps; break; end
     iters = iters + 1;
-    % Use current nxc value as next xc value.
-    xc = nxc;
   end
 end
 
