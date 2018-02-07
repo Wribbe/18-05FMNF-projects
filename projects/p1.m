@@ -12,7 +12,7 @@ for i = 1:numel(xs)
   ys(i) = f(xs(i));
 end
 
-fplot('t3_check', xs, ys, '', 'f(x)', 10, 3);
+fplot('t3_check', xs, ys, 'x', 'f(x)', 'Visualization of f(x) for bisection.', 10, 3);
 
 % Test the bisection method.
 [xa, iters, errors] = bisection(@f, 0, 1, 0.5*10^(-3), 100);
@@ -50,14 +50,14 @@ ys = zeros(size(xs));
 for i = 1:numel(xs)
   ys(i) = ft(xs(i), kc);
 end
-fplot('t5_check', xs, ys, '', 'f(t)', 10, 3);
+%fplot('t5_check', xs, ys, '', 'f(t)', 10, 3);
 
 xs = -2:0.1:0;
 ys = zeros(size(xs));
 for i = 1:numel(xs)
   ys(i) = ft(xs(i), kc);
 end
-fplot('t5_check_2', xs, ys, '', 'f(t)', 10, 3);
+%fplot('t5_check_2', xs, ys, '', 'f(t)', 10, 3);
 
 fprintf('\n');
 fprintf('Task6 -- Compute tc with bisection and fixed-point.\n');
@@ -218,7 +218,7 @@ function tabulate_errors(errors)
 end
 
 
-function fplot(name, xs, ys, x_label, y_label, width, height)
+function fplot(name, xs, ys, x_label, y_label, fig_title, width, height)
   fig = figure('visible','off');
   plot(xs, ys);
   set(gcf,'Units','centimeters');
@@ -230,5 +230,6 @@ function fplot(name, xs, ys, x_label, y_label, width, height)
   set(gca, 'FontName', 'Computer Modern');
   xlabel(x_label);
   ylabel(y_label);
+  title(fig_title);
   saveas(fig, ['figs/', name], 'pdf');
 end
