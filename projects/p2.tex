@@ -59,6 +59,7 @@
 
 \documentclass{article}
 
+\usepackage{rotating}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{gensymb}
@@ -75,34 +76,99 @@
 \begin{center}
   {\small FMNF05 - Computational Project 2} \\
   {\Large\textbf{Designing a car using tension splines}} \\
-  \vspace{0.4cm}
+  %\vspace{0.4cm}
   \today\\
-  \vspace{0.2cm}
+  %\vspace{0.2cm}
   Stefan Eng \texttt{<atn08sen@student.lu.se>} \\
-  \vspace{0.4cm}
+  \vspace{0.2cm}
   {\Large ---}
+  \vspace{-0.8cm}
 \end{center}
 
 \section*{Introduction}
 
-\begin{figure}[!ht]
-  \center
-  \includegraphics{figs/p2-car.pdf}
-\end{figure}
+  The problem consists of exploring the properties of \textit{tension splines}
+  in order to use these to approximate the curvature of a car as close as possible.
 
-\begin{figure}[!ht]
-  \center
-  \includegraphics{figs/p2-car-grid.pdf}
-\end{figure}
+  \begin{figure}[!ht]
+    \center
+    \includegraphics{figs/p2-car.pdf}
+    \caption{Chosen car picture for silhouette tracing.}
+  \end{figure}
 
-\begin{figure}[!ht]
-  \center
-  \includegraphics{figs/p2-car-grid-cubic.pdf}
-\end{figure}
+  Since a function that reproduces the silhouette has not been provided, the
+  function will have to approximated by choosing a number of appropriate knots
+  by hand and then fitting a curve to them by numerical means.
 
-\verbatiminput{data/points.txt}
+\section*{Numerical Considerations}
 
-\T{2}{Boundary analysis for $\tau$}
+  This project-solution utilizes \textit{Python} in combination with the
+  modules \textit{numpy}, for numerical computations, and \textit{matplotlib}
+  for producing plots and figures. \\
+
+  Information on how to derive the coefficients for cubic splines, as well as
+  how to plot the splines themselves has been gathered from chapter 3.4 in
+  \textit{Numerical Analysis} by Timothy Sauer.  The same methodology is then
+  re-used for deriving coefficients and plotting when switching to tension
+  splines, modified slightly in order to fit the additional instructions
+  provided by the project.
+
+\section*{Result}
+
+%\T{1}{Silhouette fitting - Cubic spline}
+
+  Initial trace of upper curvature using a cubic spline, table of points
+  available in appendix.
+
+  \begin{figure}[!h]
+    \center
+    \includegraphics{figs/p2-car-grid-cubic.pdf}
+    \caption{Upper curvature fit with cubic spline.}
+  \end{figure}
+
+  Tracing the same upper curvature using four three-point tension splines.
+
+  \begin{figure}[!h]
+    \center
+    \includegraphics{figs/p2-car-tension-splines.pdf}
+    \caption{Upper curvature fit with tension splines.}
+  \end{figure}
+
+\newpage
+
+  This section contains tension splines rendered for different tension values
+  and different beginning- and end-conditions.
+
+  \begin{figure}[!h]
+    \center
+    \includegraphics{figs/p2-fit-10-points.pdf}
+    \caption{Tension splines interpolating 10 points along $f(x) =
+    \mathrm{cos}(x)$, $x \in [0,4\pi]$ with tensions values $\tau = \{0.01,
+    0.1, 3.0, 10.0\}$}
+  \end{figure}
+
+  \begin{figure}[!h]
+    \center
+    \includegraphics{figs/p2-fit-10-points-y0.pdf}
+    \caption{Tension splines interpolating $\mathrm{cos}(x)$, same interval as
+    previous figure, with different start- and end-conditions; $y'_0 = y'_n$
+    and $\tau = 0.01$.}
+  \end{figure}
+
+  And lastly, additional curvature approximations for the cars under-side and
+  general window outline, larger image available in appendix.
+
+  \begin{figure}[!h]
+    \center
+    \includegraphics{figs/p2-car-tension-splines-extra.pdf}
+    \caption{Additional curvature fit with tension splines.}
+  \end{figure}
+
+\section*{Analysis}
+
+  \subsection*{Boundary analysis for 3'rd property of tension spline}
+
+%\T{2}{Boundary analysis for $\tau$}
 
   The third property of the tension-spline is defined as:
 
@@ -114,9 +180,21 @@
   \end{center}
 
   for each $ x \in [x_{i-1},x_i]$. Given $ \tau = 0 $, $T''''(x)$ becomes zero,
-  and if $\tau \rightarrow -\infty/\infty$, $T''''(x) \rightarrow \infty$. \\
+  indicating that the function will not behave as a polynomial with higher
+  degree than three, i.e. a cubic spline. Worth noting; $\tau$ can come
+  arbitrarily close to zero, but can't equal to zero as it appears in the
+  denominator of expressions used in this project, both on its own and as the
+  parameter to functions that become zero when $\tau$ is zero. \\
 
-\T{3}{Construct matrix-vector system and prove solution exists}
+  If $\tau \rightarrow \infty$, $T''''(x) \rightarrow -\infty/\infty$,
+  depending on the sign of $T''(x)$.
+  The function will behave as having $x^4$ components and above, and the
+  function value can change very rapidly over small $x$-intervals, allowing for
+  sharp ''turns''.
+  \\
+
+%\T{3}{Construct matrix-vector system and prove solution exists}
+  \subsection*{Constructing matrix-vector system with singular solution}
 
   The linear system for variables $z_i$, $i = 0,...,n$ is given by:
   \begin{center}
@@ -218,16 +296,13 @@
     |\beta_i| + |\beta_{i+1}| \geq |\alpha_i| + |\alpha_{i+1}|
   $. \\
 
-  Since $\tau \geq 0$ (as per definition), $h_i > 0$ (evaluation progresses in positive
-  $x$-direction) and $\mathrm{sinh}(x) > 0$ for $x > 0$, it can be assumed that
-  $\beta_i > 0$ as long as $\tau > 0$.
-  In the specific case, $\tau = 0$, the following relation is true; $|\beta_i| = |-\frac{1}{h_i}| =
-  |\frac{1}{h_i}| = |\alpha|$.
-  Given $-\frac{1}{h_i} < 0$, it can be assumed that $\beta_i < 0$ for all $i$
-  when $\tau = 0$. This means that the sign of $\beta_i$ will always be the
-  same for all $i$, which in turn means that $|\beta_i| + |\beta_{i+1}| =
-  |\beta_i + \beta_{i+1}|$. \\
-
+  Plotting shows; $\frac{\tau \mathrm{cosh}(\tau h_i)}{\mathrm{sinh}(\tau h_i)}
+  \geq 1$, for all $\tau \neq 0 $. If the chosen interpolation points
+  $x$-values are equidistant $\rightarrow h_0 = h_1 = ... = h_{n-2} = h_{n-1}$ or
+  chosen such that $h_i > 1$, $\beta_i$ will have the same sign for all $i \in
+  [0,n-1]$ for a given value $\tau$. Knowing that $\beta_i$ has the same sign, the
+  following holds true; $|\beta_i| + |\beta_{i+1}| = |\beta_i + \beta_{i+1}|$.
+  \\
 
   Combining the following results; $ |\beta_i| + |\beta_{i+1}| \geq |\alpha_i|
   + |\alpha_{i+1}| $ and $|\beta_i| + |\beta_{i+1}| =
@@ -235,7 +310,15 @@
   |\alpha_{i+1}|$ which proves that the matrix is strictly diagonally dominant
   and that the matrix-vector system will return a unique solution. \\
 
-\T{4}{Additional conditions}
+  \textit{Note: The assumption about $h_i$ holds within the framework of the
+  project. The hand-selected knots operate on a pixel-value grid where each
+  pixel position increases the $x$-value by 1 and all chosen points are further
+  away from each other than that. In the case of interpolating values generated
+  by $f(x) = cos(x)$, the values are equidistant, witch also satisfies the
+  assumption.} \\
+
+  \subsection*{Adding additional conditions}
+%\T{4}{Additional conditions}
 
 
   Update the matrix-vector updated with the additional conditions $T'(x_0) =
@@ -301,121 +384,121 @@
            {
              h_i
            }
-           \Rightarrow
-           \\
-           \tau^2T'(x)
-           -
-           \frac {
-             \tau^2(-y_i+\frac{z_i}{\tau^2} +
-             y_{i+1}-\frac{z_{i+1}}{\tau^2})
-           }
-           {
-             h_i
-           }
-           =
-           \frac{
-             z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           -
-           \frac{
-             z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           \Rightarrow
-           \\
-           \tau^2T'(x)
-           -
-           \frac {
-             \tau^2(y_{i+1}-y_i)+z_i-z_{i+1}
-           }
-           {
-             h_i
-           }
-           =
-           \frac{
-             z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           -
-           \frac{
-             z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           \Rightarrow
-           \\
-           \tau^2T'(x)
-           -
-           \gamma_i
-           =
-           \frac{
-             z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           -
-           \frac{
-             z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           \Rightarrow
-           \\
-           \tau^2T'(x)
-           -
-           \frac {
-             \tau^2(y_{i+1}-y_i)+z_i-z_{i+1}
-           }
-           {
-             h_i
-           }
-           =
-           \frac{
-             z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           -
-           \frac{
-             z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           \Rightarrow
-           \\
-           \tau^2T'(x)
-           -
-           \gamma_i
-           =
-           \frac{
-             z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           -
-           \frac{
-             z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
-           }
-           {
-             \textrm{sinh}(\tau h_i)
-           }
-           +
-           \frac{z_i}{h_i}
-           -
-           \frac{z_{i+1}}{h_i}
+           %\Rightarrow
+           %\\
+           %\tau^2T'(x)
+           %-
+           %\frac {
+           %  \tau^2(-y_i+\frac{z_i}{\tau^2} +
+           %  y_{i+1}-\frac{z_{i+1}}{\tau^2})
+           %}
+           %{
+           %  h_i
+           %}
+           %=
+           %\frac{
+           %  z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %-
+           %\frac{
+           %  z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %\Rightarrow
+           %\\
+           %\tau^2T'(x)
+           %-
+           %\frac {
+           %  \tau^2(y_{i+1}-y_i)+z_i-z_{i+1}
+           %}
+           %{
+           %  h_i
+           %}
+           %=
+           %\frac{
+           %  z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %-
+           %\frac{
+           %  z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %\Rightarrow
+           %\\
+           %\tau^2T'(x)
+           %-
+           %\gamma_i
+           %=
+           %\frac{
+           %  z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %-
+           %\frac{
+           %  z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %\Rightarrow
+           %\\
+           %\tau^2T'(x)
+           %-
+           %\frac {
+           %  \tau^2(y_{i+1}-y_i)+z_i-z_{i+1}
+           %}
+           %{
+           %  h_i
+           %}
+           %=
+           %\frac{
+           %  z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %-
+           %\frac{
+           %  z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %\Rightarrow
+           %\\
+           %\tau^2T'(x)
+           %-
+           %\gamma_i
+           %=
+           %\frac{
+           %  z_{i+1}\tau\textrm{cosh}(\tau(x-x_{i}))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %-
+           %\frac{
+           %  z_i\tau\mathrm{cosh}(\tau(x_{i+1}-x))
+           %}
+           %{
+           %  \textrm{sinh}(\tau h_i)
+           %}
+           %+
+           %\frac{z_i}{h_i}
+           %-
+           %\frac{z_{i+1}}{h_i}
            \Rightarrow
            \\
            \tau^2T'(x)
@@ -455,7 +538,7 @@
                \textrm{sinh}(\tau h_i)
              }
            )
-  \end{multline*} \\
+  \end{multline*}
 
   First evaluation is done with $i=0$ and $x=x_0$:
 
@@ -589,19 +672,58 @@
   \end{bmatrix}
   $ \\ \ \\
 
-\T{5}{Fit 10 values derived from cos($x$)}
+\section*{Lessons Learned}
 
-  \begin{figure}[!ht]
-    \center
-    \includegraphics{figs/p2-fit-10-points.pdf}
-  \end{figure}
+  For this particular project, Python in combination with Numpy and Matplotlib
+  work great as a replacement for Matlab, without any perceived performance
+  bottlenecks, further evaluation will be pursued. \\
 
-\T{6}{Plot top of car}
+  Got a deeper understanding on the numerical evaluation of spline-coefficients
+  used in both tension- and cubic-splines and their close relationship to
+  linear systems.
 
-  \begin{figure}[!ht]
-    \center
-    \includegraphics{figs/p2-car-tension-splines.pdf}
-  \end{figure}
+\section*{Acknowledgements}
+
+  As stated in the introduction, the projects builds largely on the
+  cubic-spline theory presented in chapter 3.4 in \textit{Numerical Analysis}
+  by Timothy Sauer. Image of car taken from project description, and \LaTeX \ was
+  used to typeset and produce this document. \\
+
+
+%\T{5}{Fit 10 values derived from cos($x$)}
+%
+%\T{6}{Plot top of car}
+
+\section*{Appendix}
+
+\begin{figure}[!h]
+  \center
+  \begin{tabular}{| c | c | c |}
+    \hline
+    p\# & x & y \\
+    \hline
+    1 & 12.5 & 129.5 \\
+    2 & 40.0 & 140.5 \\
+    3 & 90.5 & 150.0 \\
+    4 & 131.5 & 153.5 \\
+    5 & 210.0 & 186.5 \\
+    6 & 271.0 & 191.0 \\
+    7 & 341.0 & 180.0 \\
+    8 & 400.0 & 161.0 \\
+    9 & 433.5 & 159.5 \\
+    \hline
+  \end{tabular}
+  \caption{Pixel-values for knots used in cubic spline interpolation.}
+\end{figure}
+
+\begin{sidewaysfigure}
+  \centering
+  \includegraphics[width=\columnwidth]{figs/p2-car-tension-splines-extra-large.pdf}
+  \caption{Larger version of fully splined car.}
+\end{sidewaysfigure}
+
+
+%\verbatiminput{data/points.txt}
 
 
 \end{document}
